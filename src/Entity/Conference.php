@@ -6,6 +6,7 @@ use App\Repository\ConferenceRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 
 #[ORM\Entity(repositoryClass: ConferenceRepository::class)]
 class Conference
@@ -13,20 +14,21 @@ class Conference
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $city;
+    private string $city;
 
     #[ORM\Column(type: 'string', length: 4)]
-    private ?string $year;
+    private string $year;
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $isInternational;
+    private bool $isInternational;
 
     #[ORM\OneToMany(mappedBy: 'conference', targetEntity: Comment::class, orphanRemoval: true)]
-    private ArrayCollection $comments;
+    private Collection $comments;
 
+    #[Pure]
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -101,5 +103,10 @@ class Conference
         }
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf("%s %s", $this->city, $this->year);
     }
 }

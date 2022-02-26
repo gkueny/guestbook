@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
+use JetBrains\PhpStorm\Pure;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 class Comment
@@ -12,19 +13,19 @@ class Comment
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private ?int $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string $author;
+    private string $author;
 
     #[ORM\Column(type: 'text')]
-    private ?string $text;
+    private string $text;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private ?string$email;
+    private string$email;
 
     #[ORM\Column(type: 'datetime_immutable')]
-    private ?DateTimeImmutable $createdAt;
+    private DateTimeImmutable $createdAt;
 
     #[ORM\ManyToOne(targetEntity: Conference::class, inversedBy: 'comments')]
     #[ORM\JoinColumn(nullable: false)]
@@ -108,5 +109,11 @@ class Comment
         $this->photoFilename = $photoFilename;
 
         return $this;
+    }
+
+    #[Pure]
+    public function __toString(): string
+    {
+        return $this->getEmail();
     }
 }
