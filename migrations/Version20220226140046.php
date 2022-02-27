@@ -39,7 +39,6 @@ final class Version20220226140046 extends AbstractMigration
 
     public function down(Schema $schema): void
     {
-        $this->addSql('CREATE SCHEMA public');
         $this->addSql('ALTER TABLE comment DROP CONSTRAINT FK_9474526C604B8382');
         $this->addSql('DROP SEQUENCE comment_id_seq CASCADE');
         $this->addSql('DROP SEQUENCE conference_id_seq CASCADE');

@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use JetBrains\PhpStorm\Pure;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Comment
 {
     #[ORM\Id]
@@ -22,7 +23,7 @@ class Comment
     private string $text;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private string$email;
+    private string $email;
 
     #[ORM\Column(type: 'datetime_immutable')]
     private DateTimeImmutable $createdAt;
@@ -33,6 +34,12 @@ class Comment
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $photoFilename;
+
+    #[ORM\PrePersist]
+    public function setCreatedAtValue()
+    {
+        $this->createdAt = new DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {

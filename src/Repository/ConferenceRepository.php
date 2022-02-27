@@ -13,7 +13,6 @@ use Symfony\Component\HttpKernel\Event\ControllerEvent;
 /**
  * @method Conference|null find($id, $lockMode = null, $lockVersion = null)
  * @method Conference|null findOneBy(array $criteria, array $orderBy = null)
- * @method Conference[]    findAll()
  * @method Conference[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class ConferenceRepository extends ServiceEntityRepository
@@ -23,10 +22,6 @@ class ConferenceRepository extends ServiceEntityRepository
         parent::__construct($registry, Conference::class);
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function add(Conference $entity, bool $flush = true): void
     {
         $this->_em->persist($entity);
@@ -35,10 +30,6 @@ class ConferenceRepository extends ServiceEntityRepository
         }
     }
 
-    /**
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
     public function remove(Conference $entity, bool $flush = true): void
     {
         $this->_em->remove($entity);
