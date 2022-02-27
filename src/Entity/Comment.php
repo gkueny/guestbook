@@ -5,7 +5,7 @@ namespace App\Entity;
 use App\Repository\CommentRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\Mapping as ORM;
-use JetBrains\PhpStorm\Pure;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
 #[ORM\HasLifecycleCallbacks]
@@ -17,12 +17,16 @@ class Comment
     private int $id;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
     private string $author;
 
     #[ORM\Column(type: 'text')]
+    #[Assert\NotBlank]
     private string $text;
 
     #[ORM\Column(type: 'string', length: 255)]
+    #[Assert\NotBlank]
+    #[Assert\Email]
     private string $email;
 
     #[ORM\Column(type: 'datetime_immutable')]
@@ -118,7 +122,6 @@ class Comment
         return $this;
     }
 
-    #[Pure]
     public function __toString(): string
     {
         return $this->getEmail();
