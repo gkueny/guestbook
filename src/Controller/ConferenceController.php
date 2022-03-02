@@ -7,6 +7,7 @@ use App\Entity\Conference;
 use App\Form\CommentFormType;
 use App\Message\CommentMessage;
 use App\Repository\CommentRepository;
+use App\Repository\ConferenceRepository;
 use App\Service\SpamChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
@@ -23,6 +24,7 @@ class ConferenceController extends AbstractController
 {
     protected Environment $twig;
     protected CommentRepository $commentRepository;
+    protected ConferenceRepository $conferenceRepository;
     protected EntityManagerInterface $entityManager;
     protected SpamChecker $spamChecker;
     protected MessageBusInterface $messageBus;
@@ -30,6 +32,7 @@ class ConferenceController extends AbstractController
     public function __construct(
         Environment            $twig,
         CommentRepository      $commentRepository,
+        ConferenceRepository   $conferenceRepository,
         EntityManagerInterface $entityManager,
         SpamChecker            $spamChecker,
         MessageBusInterface    $messageBus,
@@ -37,6 +40,7 @@ class ConferenceController extends AbstractController
     {
         $this->twig = $twig;
         $this->commentRepository = $commentRepository;
+        $this->conferenceRepository = $conferenceRepository;
         $this->entityManager = $entityManager;
         $this->spamChecker = $spamChecker;
         $this->messageBus = $messageBus;
@@ -45,7 +49,23 @@ class ConferenceController extends AbstractController
     #[Route('/', name: 'homepage')]
     public function index(): Response
     {
-        return new Response($this->twig->render('conference/index.html.twig'));
+        $response = new Response($this->twig->render('conference/index.html.twig', [
+            'conferences' => $this->conferenceRepository->findAll(),
+        ]));
+        $response->setSharedMaxAge(3600);
+
+        return $response;
+    }
+
+    #[Route('/conference_header', name: 'conference_header')]
+    public function conferenceHeader(ConferenceRepository $conferenceRepository): Response
+    {
+        $response = new Response($this->twig->render('conference/header.html.twig', [
+            'conferences' => $conferenceRepository->findAll(),
+        ]));
+        $response->setSharedMaxAge(3600);
+
+        return $response;
     }
 
     #[Route('/conference/{slug}', name: 'conference')]
