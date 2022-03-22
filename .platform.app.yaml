@@ -3,67 +3,73 @@ name: app
 type: php:8.1
 
 dependencies:
-    php:
-        composer/composer: "^2"
+  php:
+    composer/composer: "^2"
 
 runtime:
-    extensions:
-        - apcu
-        - blackfire
-        - ctype
-        - iconv
-        - mbstring
-        - pdo_pgsql
-        - sodium
-        - xsl
-        
+  extensions:
+    - apcu
+    - blackfire
+    - ctype
+    - iconv
+    - mbstring
+    - pdo_pgsql
+    - sodium
+    - xsl
+
 
 variables:
-    php:
-        opcache.preload: /app/config/preload.php
+  php:
+    opcache.preload: /app/config/preload.php
 build:
-    flavor: none
+  flavor: none
 
 disk: 1024
 
 web:
-    locations:
-        "/":
-            root: "public"
-            expires: 1h
-            passthru: "/index.php"
+  locations:
+    "/":
+      root: "public"
+      expires: 1h
+      passthru: "/index.php"
 
 mounts:
-    "/var": { source: local, source_path: var }
-    "/public/uploads": { source: service, service: files, source_path: uploads }
-    
+  "/var": { source: local, source_path: var }
+  "/public/uploads": { source: service, service: files, source_path: uploads }
+
 
 relationships:
-    database: "database:postgresql"
-    
+  database: "database:postgresql"
+
 hooks:
-    build: |
-        set -x -e
+  build: |
+    set -x -e
+    
+    curl -fs https://get.symfony.com/cloud/configurator | bash
+    
+    symfony-build
 
-        curl -fs https://get.symfony.com/cloud/configurator | bash
-        
-        symfony-build
-
-    deploy: |
-        set -x -e
-
-        symfony-deploy
+  deploy: |
+    set -x -e
+    
+    symfony-deploy
 
 crons:
-    security-check:
-        # Check that no security issues have been found for PHP packages deployed in production
-        # See https://github.com/fabpot/local-php-security-checker
-        spec: '50 23 * * *'
-        cmd: if [ "$PLATFORM_BRANCH" = "main" ]; then croncape php-security-checker; fi
-
+  security-check:
+    # Check that no security issues have been found for PHP packages deployed in production
+    # See https://github.com/fabpot/local-php-security-checker
+    spec: '50 23 * * *'
+    cmd: if [ "$PLATFORM_BRANCH" = "main" ]; then croncape php-security-checker; fi
+  comment_cleanup:
+    # Cleanup every night at 11.50 pm (UTC).
+    spec: '50 23 * * *'
+    cmd: |
+      if [ "$PLATFORM_BRANCH" = "main" ]; then
+          croncape symfony console app:comment:cleanup
+      fi
 workers:
-    messenger:
-        commands:
-            # Consume "async" messages (as configured in the routing section of config/packages/messenger.yaml)
-            start: symfony console --time-limit=3600 --memory-limit=64M messenger:consume async
+  messenger:
+    commands:
+      # Consume "async" messages (as configured in the routing section of config/packages/messenger.yaml)
+      start: symfony console --time-limit=3600 --memory-limit=64M messenger:consume async
 
